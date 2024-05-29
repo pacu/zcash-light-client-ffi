@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      
+      - name: Make Install
+        run: make install
+        
+      - name: Make Xcframework
+        run: make xcframework
+
+      - name: Compute SHA-256 checksum
+        id: checksum
+        run: echo "SHA256=$(shasum -a 256 products/libzcashlc.xcframework.zip | cut -d ' ' -f 1)" >> $GITHUB_ENV
+  
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ### Checksum
+            ```plaintext
+            ${{ env.SHA256 }}
+            ```
+  
+      - name: Upload XCFramework to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: products/libzcashlc.xcframework.zip
+          asset_name: libzcashlc.xcframework.zip
+          asset_content_type: application/zip 
