@@ -16,7 +16,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "libzcashlc",
-            path: "releases/XCFramework/libzcashlc.xcframework"
+            url: "https://github.com/pacu/zcash-light-client-ffi/releases/download/0.8.0/libzcashlc.xcframework.zip",
+            checksum: "1e53f82fc643e941c50684884028a6d6314549704212732c9656fc1c491129cf"
         )
     ]
 )
